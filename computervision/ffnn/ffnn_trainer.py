@@ -16,7 +16,7 @@ class FFNNModelTrainer(BaseModelTrainer):
             Generator[Tuple[np.ndarray[np.float32], np.ndarray[np.float32]], None, None]]:
         
         # Generators
-        train_generator = generator_images(train_objs, batch_size, do_shuffle=True)
-        valid_generator = generator_images(validation_objs, batch_size, do_shuffle=False)
+        train_generator = generator_images(train_objs, batch_size, transform=transform_train_imgs_func, do_shuffle=True)
+        valid_generator = generator_images(validation_objs, batch_size, transform=transform_train_imgs_func, do_shuffle=False)
 
         return train_generator, valid_generator
