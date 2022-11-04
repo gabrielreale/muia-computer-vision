@@ -11,6 +11,8 @@ from keras.callbacks import TerminateOnNaN, EarlyStopping, ReduceLROnPlateau, Mo
 from sklearn.model_selection import train_test_split
 from focal_loss import SparseCategoricalFocalLoss
 
+
+
 # Hyper-parameters
 batch_size = 16
 epochs = 20
@@ -97,3 +99,61 @@ best_value = np.max(h.history['val_accuracy'])
 
 with open('out.txt', 'w') as f:
     print('Best validation model: epoch ' + str(best_idx+1), ' - val_accuracy ' + str(best_value), file=f)
+
+
+# Testing
+json_file = 'xview_recognition/xview_ann_test.json'
+with open(json_file) as ifs:
+    json_data = json.load(ifs)
+ifs.close()
+anns = []
+for json_img, json_ann in zip(json_data['images'], json_data['annotations']):
+    image = GenericImage('../../xview_recognition/' + json_img['file_name'])
+    image.tile = np.array([0, 0, json_img['width'], json_img['height']])
+    obj = GenericObject()
+    obj.id = json_ann['id']
+    obj.bb = (int(json_ann['bbox'][0]), int(json_ann['bbox'][1]), int(json_ann['bbox'][2]), int(json_ann['bbox'][3]))
+    obj.category = list(categories.values())[json_ann['category_id']-1]
+    image.add_object(obj)
+    anns.append(image)
+
+y_true, y_pred = [], []
+for ann in anns:
+    # Load image
+    image = load_geoimage(ann.filename)
+    for obj_pred in ann.objects:
+        # Generate prediction
+        warped_image = np.expand_dims(image, 0)
+        predictions = model.predict(warped_image)
+        # Save prediction
+        pred_category = list(categories.values())[np.argmax(predictions)]
+        pred_score = np.max(predictions)
+        y_true.append(obj_pred.category)
+        y_pred.append(pred_category)
+
+correct_samples_class = np.diag(cm).astype(float)
+total_samples_class = np.sum(cm, axis=1).astype(float)
+total_predicts_class = np.sum(cm, axis=0).astype(float)
+print('Mean Accuracy: %.3f%%' % (np.sum(correct_samples_class) / np.sum(total_samples_class) * 100))
+acc = correct_samples_class / np.maximum(total_samples_class, np.finfo(np.float64).eps)
+print('Mean Recall: %.3f%%' % (acc.mean() * 100))
+acc = correct_samples_class / np.maximum(total_predicts_class, np.finfo(np.float64).eps)
+print('Mean Precision: %.3f%%' % (acc.mean() * 100))
+for idx in range(len(categories)):
+    # True/False Positives (TP/FP) refer to the number of predicted positives that were correct/incorrect.
+    # True/False Negatives (TN/FN) refer to the number of predicted negatives that were correct/incorrect.
+    tp = cm[idx, idx]
+    fp = sum(cm[:, idx]) - tp
+    fn = sum(cm[idx, :]) - tp
+    tn = sum(np.delete(sum(cm) - cm[idx, :], idx))
+    # True Positive Rate: proportion of real positive cases that were correctly predicted as positive.
+    recall = tp / np.maximum(tp+fn, np.finfo(np.float64).eps)
+    # Precision: proportion of predicted positive cases that were truly real positives.
+    precision = tp / np.maximum(tp+fp, np.finfo(np.float64).eps)
+    # True Negative Rate: proportion of real negative cases that were correctly predicted as negative.
+    specificity = tn / np.maximum(tn+fp, np.finfo(np.float64).eps)
+    # Dice coefficient refers to two times the intersection of two sets divided by the sum of their areas.
+    # Dice = 2 |A∩B| / (|A|+|B|) = 2 TP / (2 TP + FP + FN)
+    f1_score = 2 * ((precision * recall) / np.maximum(precision+recall, np.finfo(np.float64).eps))
+    with open('out2.txt', 'w') as f:
+        print('> %s: Recall: %.3f%% Precision: %.3f%% Specificity: %.3f%% Dice: %.3f%%' % (list(categories.values())[idx], recall*100, precision*100, specificity*100, f1_score*100), file=f)
