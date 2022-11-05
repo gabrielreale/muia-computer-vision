@@ -2,8 +2,11 @@ import os
 import json
 import numpy as np
 import math
+
+from matplotlib import cm
+
 from generic_objects import GenericImage, GenericObject
-from generators import generator_images
+from generators import generator_images, load_geoimage
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.optimizers import Adam
@@ -18,7 +21,7 @@ batch_size = 16
 epochs = 20
 opt = Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-8, decay=0.00, amsgrad=True, clipnorm=1.0, clipvalue=0.5)
 loss_funct = 'sparse_categorical_crossentropy'  # I hardcoded this as its not from keras
-number_of_hidden_layers = 0
+number_of_hidden_layers = 2
 neurons_per_hidden_layer = [75264, 37632, 18816]
 activation = 'relu'
 dropout = 0.2
@@ -28,7 +31,7 @@ categories = {13: 'CARGO_PLANE', 15: 'HELICOPTER', 18: 'SMALL_CAR', 19: 'BUS', 2
               47: 'FISHING_VESSEL', 60: 'DUMP_TRUCK', 64: 'EXCAVATOR', 73: 'BUILDING', 86: 'STORAGE_TANK',
               91: 'SHIPPING_CONTAINER'}
 
-dataset_dirpath = 'datasets/xview_recognition'
+dataset_dirpath = '../PROJECT/xview_recognition'
 
 # Load database
 json_file = os.path.join(dataset_dirpath, 'xview_ann_train.json')
@@ -84,8 +87,8 @@ objs_valid = [(ann.filename, obj) for ann in anns_valid for obj in ann.objects]
 # Generators
 
 
-train_generator = generator_images(objs_train, batch_size, do_shuffle=True)
-valid_generator = generator_images(objs_valid, batch_size, do_shuffle=False)
+train_generator = generator_images(categories, objs_train, batch_size, do_shuffle=True)
+valid_generator = generator_images(categories, objs_valid, batch_size, do_shuffle=False)
 
 
 # Training
@@ -102,13 +105,13 @@ with open('out.txt', 'w') as f:
 
 
 # Testing
-json_file = 'xview_recognition/xview_ann_test.json'
+json_file = os.path.join(dataset_dirpath, 'xview_ann_test.json')
 with open(json_file) as ifs:
     json_data = json.load(ifs)
 ifs.close()
 anns = []
 for json_img, json_ann in zip(json_data['images'], json_data['annotations']):
-    image = GenericImage('../../xview_recognition/' + json_img['file_name'])
+    image = GenericImage(dataset_dirpath + json_img['file_name'])
     image.tile = np.array([0, 0, json_img['width'], json_img['height']])
     obj = GenericObject()
     obj.id = json_ann['id']
