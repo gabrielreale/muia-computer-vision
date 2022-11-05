@@ -9,5 +9,5 @@
 #SBATCH --mem=8G
 ##------------------------ End job description ------------------------
 ##-------------------------- Start execution --------------------------
-srun python launch.py
+srun python3 launch.py
 ##--------------------------- End execution ---------------------------

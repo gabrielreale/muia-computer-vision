@@ -9,7 +9,7 @@ from generic_objects import GenericImage, GenericObject
 from generators import generator_images, load_geoimage
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.optimizers import Adam
+from keras.optimizers import adam_v2
 from keras.callbacks import TerminateOnNaN, EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 from sklearn.model_selection import train_test_split
 from focal_loss import SparseCategoricalFocalLoss
@@ -19,10 +19,10 @@ from focal_loss import SparseCategoricalFocalLoss
 # Hyper-parameters
 batch_size = 16
 epochs = 20
-opt = Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-8, decay=0.00, amsgrad=True, clipnorm=1.0, clipvalue=0.5)
-loss_funct = 'sparse_categorical_crossentropy'  # I hardcoded this as its not from keras
-number_of_hidden_layers = 2
-neurons_per_hidden_layer = [75264, 37632, 18816]
+opt = adam_v2.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-8, decay=0.00, amsgrad=True, clipnorm=1.0, clipvalue=0.5)
+loss_funct = 'categorical_crossentropy'  # I hardcoded this as its not from keras
+number_of_hidden_layers = 0
+neurons_per_hidden_layer = [100]
 activation = 'relu'
 dropout = 0.2
 
@@ -31,7 +31,7 @@ categories = {13: 'CARGO_PLANE', 15: 'HELICOPTER', 18: 'SMALL_CAR', 19: 'BUS', 2
               47: 'FISHING_VESSEL', 60: 'DUMP_TRUCK', 64: 'EXCAVATOR', 73: 'BUILDING', 86: 'STORAGE_TANK',
               91: 'SHIPPING_CONTAINER'}
 
-dataset_dirpath = '../PROJECT/xview_recognition'
+dataset_dirpath = '../../PROJECT/xview_recognition'
 
 # Load database
 json_file = os.path.join(dataset_dirpath, 'xview_ann_train.json')
@@ -72,7 +72,7 @@ for i in range(number_of_hidden_layers):
 model.add(Dense(len(categories)))
 model.add(Activation('softmax'))
 model.summary()
-model.compile(optimizer=opt, loss=SparseCategoricalFocalLoss(gamma=2), metrics=['accuracy'])
+model.compile(optimizer=opt, loss=loss_funct, metrics=['accuracy'])
 
 # Callbacks
 model_checkpoint = ModelCheckpoint('model.hdf5', monitor='val_accuracy', verbose=1, save_best_only=True)
