@@ -6,19 +6,19 @@ from confusion_matrix import draw_confusion_matrix
 from generic_objects import GenericImage, GenericObject
 from generators import generator_images, load_geoimage
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.layers import Dense, Dropout, Activation, Flatten, RandomFlip, RandomRotation, InputLayer, RandomTranslation
 from keras.optimizers import adam_v2
 from keras.callbacks import TerminateOnNaN, EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
-from focal_loss import BinaryFocalLoss
+# from focal_loss import BinaryFocalLoss
 
 
 # Hyper-parameters
 batch_size = 16
 epochs = 20
 opt = adam_v2.Adam(learning_rate=1e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-8, decay=0.00, amsgrad=True, clipnorm=1.0, clipvalue=0.5)
-#loss_funct = 'categorical_crossentropy'   I hardcoded this as BinaryFocalLoss is not from keras
+loss_funct = 'categorical_crossentropy'
 number_of_hidden_layers = 1
 neurons_per_hidden_layer = [200]
 activation = 'relu'
@@ -48,20 +48,40 @@ for json_img, json_ann in zip(json_data['images'], json_data['annotations']):
     obj.id = json_ann['id']
     obj.bb = (int(json_ann['bbox'][0]), int(json_ann['bbox'][1]), int(json_ann['bbox'][2]), int(json_ann['bbox'][3]))
     obj.category = list(categories.values())[json_ann['category_id']-1]
+
     # Resampling strategy to reduce training time
     if counts[obj.category] >= image_cap:
         continue
     counts[obj.category] += 1
     image.add_object(obj)
     anns.append(image)
+
+    if obj.category == 'HELICOPTER':
+        anns.append(image)
+        anns.append(image)
+        anns.append(image)
+        anns.append(image)
+        counts[obj.category] += 4
+
+    if obj.category == 'SMALL_CAR' or obj.category == 'BUS' or obj.category == 'TRUCK' or obj.category == 'BUILDING':
+        continue
+
+    anns.append(image)
+    counts[obj.category] += 1
+
 print(counts)
 
 # Splitting data
 anns_train, anns_valid = train_test_split(anns, test_size=0.1, random_state=1, shuffle=True)
 
 # Model architecture
+input_shape = (224, 224, 3)
 model = Sequential()
-model.add(Flatten(input_shape=(224, 224, 3)))
+model.add(InputLayer(input_shape=input_shape))
+model.add(RandomFlip("horizontal_and_vertical"))
+model.add(RandomRotation(0.2))
+model.add(RandomTranslation(height_factor=0.2, width_factor=0.2))
+model.add(Flatten())
 model.add(Activation(activation))
 model.add(Dropout(dropout))
 for i in range(number_of_hidden_layers):
@@ -71,8 +91,10 @@ for i in range(number_of_hidden_layers):
 
 model.add(Dense(len(categories)))
 model.add(Activation('softmax'))
+
+model.build()
 model.summary()
-model.compile(optimizer=opt, loss=BinaryFocalLoss(gamma=2), metrics=['accuracy'])
+model.compile(optimizer=opt, loss=loss_funct, metrics=['accuracy'])
 
 # Callbacks
 model_checkpoint = ModelCheckpoint('model.hdf5', monitor='val_accuracy', verbose=1, save_best_only=True)
