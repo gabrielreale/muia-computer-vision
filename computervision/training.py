@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 import math
+import time
 from xml.dom import NotSupportedErr
 from computervision.data.base_data import simple_image_transform
 from sklearn.model_selection import train_test_split
@@ -83,7 +84,9 @@ if __name__ == "__main__":
         objs_train, objs_valid, batch_size=batch_size,
         transform_train_imgs_func=simple_image_transform, transform_validation_imgs_func=None)
     #Train
+    start_time = time.time()
     ffnn_model_trainer.train(
         train_generator, valid_generator, 
         optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'],
         train_steps=train_steps, validation_steps=valid_steps, epochs=epochs, callbacks=callbacks)
+    print("--- %s seconds ---" % (time.time() - start_time))
