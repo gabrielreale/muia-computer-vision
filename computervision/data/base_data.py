@@ -68,7 +68,6 @@ def get_mat(rotation, shear, height_zoom, width_zoom, height_shift, width_shift)
         
     # CONVERT DEGREES TO RADIANS
     rotation = math.pi * rotation / 180.
-    shear = math.pi * shear / 180.
     
     # ROTATION MATRIX
     c1 = tf.math.cos(rotation)
@@ -78,9 +77,13 @@ def get_mat(rotation, shear, height_zoom, width_zoom, height_shift, width_shift)
     rotation_matrix = tf.reshape( tf.concat([c1,s1,zero, -s1,c1,zero, zero,zero,one],axis=0),[3,3] )
         
     # SHEAR MATRIX
-    c2 = tf.math.cos(shear)
-    s2 = tf.math.sin(shear)
-    shear_matrix = tf.reshape( tf.concat([one,s2,zero, zero,c2,zero, zero,zero,one],axis=0),[3,3] )    
+    if shear is None:
+        shear_matrix = tf.eye(rotation_matrix.shape[0], rotation_matrix.shape[1])
+    else:
+        shear = math.pi * shear / 180.
+        c2 = tf.math.cos(shear)
+        s2 = tf.math.sin(shear)
+        shear_matrix = tf.reshape( tf.concat([one,s2,zero, zero,c2,zero, zero,zero,one],axis=0),[3,3] )    
     
     # ZOOM MATRIX
     zoom_matrix = tf.reshape( tf.concat([one/height_zoom,zero,zero, zero,one/width_zoom,zero, zero,zero,one],axis=0),[3,3] )
@@ -100,12 +103,14 @@ def simple_image_transform(img: npt.ArrayLike):
     DIM = img.shape[0]
     XDIM = DIM%2 #fix for size 331
     
-    rot = 15. * tf.random.normal([1],dtype='float32')
-    shr = 5. * tf.random.normal([1],dtype='float32') 
+    rot = 180. * tf.random.normal([1],dtype='float32')
+    # shr = 5. * tf.random.normal([1],dtype='float32') NO SHEAR 
+    shr = None
     h_zoom = 1.0 + tf.random.normal([1],dtype='float32')/10.
-    w_zoom = 1.0 + tf.random.normal([1],dtype='float32')/10.
-    h_shift = 16. * tf.random.normal([1],dtype='float32') 
-    w_shift = 16. * tf.random.normal([1],dtype='float32') 
+    # w_zoom = 1.0 + tf.random.normal([1],dtype='float32')/10.
+    w_zoom = h_zoom # Same zoom in both axes 
+    h_shift = DIM / 20. * tf.random.normal([1],dtype='float32') 
+    w_shift = DIM / 20. * tf.random.normal([1],dtype='float32') 
   
     # GET TRANSFORMATION MATRIX
     m = get_mat(rot,shr,h_zoom,w_zoom,h_shift,w_shift) 
@@ -146,4 +151,5 @@ def draw_confusion_matrix(cm, categories, normalize=False):
         for j in range(cm.shape[1]):
             ax.text(j, i, format(cm[i, j], fmt), ha="center", va="center", color="white" if cm[i, j] > thresh else "black", fontsize=int(20-pow(len(categories), 0.5)))
     fig.tight_layout()
-    plt.show(fig)
+    plt.show()
+

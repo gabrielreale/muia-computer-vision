@@ -37,7 +37,7 @@ class BaseModelTrainer(ABC):
 
         self._model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
-        h = self._model.fit(train_generator, steps_per_epoch=train_steps, validation_data=validation_generator, validation_steps=validation_steps, epochs=epochs, callbacks=callbacks, verbose=1)
+        h = self._model.fit(train_generator, steps_per_epoch=train_steps, validation_data=validation_generator, validation_steps=validation_steps, epochs=epochs, callbacks=callbacks, verbose=2)
 
         # Best validation model
         best_idx = int(np.argmax(h.history['val_accuracy']))

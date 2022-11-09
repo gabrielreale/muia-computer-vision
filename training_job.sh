@@ -5,8 +5,8 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --partition=standard-gpu
-#SBATCH --gres=gpu:v100:1
-#SBATCH --mem=8G
+#SBATCH --gres=gpu:a100:1
+#SBATCH --mem=16G
 ##------------------------ End job description ------------------------
 ##-------------------------- Start execution --------------------------
 srun python computervision/training.py 

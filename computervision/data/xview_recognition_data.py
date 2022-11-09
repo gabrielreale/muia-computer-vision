@@ -2,9 +2,10 @@ import os
 import json
 import random
 import numpy as np
+import matplotlib.pyplot as plt
 from typing import Any, Mapping, Optional, Sequence, Tuple
 
-from computervision.data.base_data import GenericObject, GenericImage
+from computervision.data.base_data import GenericObject, GenericImage, load_geoimage, simple_image_transform
 
 def get_categories():
     return {
@@ -48,12 +49,9 @@ def get_image_objects_list_from_file(
 
     return anns, counts
 
-def oversample_image_objects(
-    img_objs: Sequence[GenericImage],
-    categories_to_oversample_and_size_multiplier: Mapping[str, float],
-    seed_value: Optional[int] = 11) -> Tuple[Sequence[GenericImage], int]:
-    print("Annotations initial size: ", len(img_objs))
-    
+
+def get_samples_grouped_by_categories(img_objs: Sequence[GenericImage]):
+
     categories = get_categories()
     img_objs_per_category = dict.fromkeys(categories.values(), None)
     # Create a dictionary holding sequences of the same class
@@ -65,7 +63,17 @@ def oversample_image_objects(
             img_objs_per_category[current_img_cat].append(img_obj)
 
     print("img_objs_per_category: ", img_objs_per_category.keys())
+    return img_objs_per_category
 
+def oversample_image_objects(
+    img_objs: Sequence[GenericImage],
+    categories_to_oversample_and_size_multiplier: Mapping[str, float],
+    seed_value: Optional[int] = 11) -> Tuple[Sequence[GenericImage], int]:
+    print("Annotations initial size: ", len(img_objs))
+    
+    img_objs_per_category = get_samples_grouped_by_categories(img_objs)
+
+    categories = get_categories()
     random.seed(a=seed_value)
     for category_to_oversample in categories_to_oversample_and_size_multiplier.keys():
         # Get images of category
@@ -104,5 +112,53 @@ def load_json_database(json_file: str) -> Any:
 
     return json_data
 
+
 if __name__ == "__main__":
-    print("HELP")
+    # Get training data
+    dataset_dirpath = 'datasets/xview_recognition'
+    output_dir = 'image_transforms/simple_image_transform'
+    categories = get_categories()
+
+    train_database_json_file = os.path.join(dataset_dirpath, 'xview_ann_train.json')
+    print("Obtainig annotations")
+    anns, _ = get_image_objects_list_from_file(train_database_json_file, dataset_dirpath, maximum_training_samples_per_category=5000)
+    
+    print("Obtainig grouped annotations")
+    img_objs_per_category = get_samples_grouped_by_categories(anns)
+
+    for selected_cat in categories.values():
+        print("Obtaining plots for ", selected_cat)
+        selected_cat_img_objs = img_objs_per_category[selected_cat]
+        
+        objs = [(ann.filename, obj) for ann in selected_cat_img_objs for obj in ann.objects]
+        # objs_generator = generator_images(objs, batch_size=1, transform=simple_image_transform, do_shuffle=True)
+
+        i = 0 
+        filename, img_obj = objs[i]
+        image = load_geoimage(filename)
+    
+        print("Plotting image transforms")
+        plt.figure(figsize=(19,14))
+        rows = 4
+        cols = 5
+        count = 1
+        for r in range(rows):
+            for c in range(cols):
+                plt.subplot(rows, cols, count)
+
+                if r == 0 and c == 0:
+                    plt.imshow(image)
+                    plt.title("Reference Image")
+                else:
+                    transformed_img = simple_image_transform(image)
+                    plt.imshow(transformed_img)
+                    plt.title("Randomly Transformed Image")
+                
+                count += 1
+        
+        plt.show()
+
+        os.makedirs(output_dir, exist_ok=True)
+        fig_path = os.path.join(output_dir, f'random_image_transform_{selected_cat}.jpg')
+        print("Saving plot to ", fig_path)
+        plt.savefig(fig_path)

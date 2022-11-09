@@ -3,14 +3,15 @@ import os
 import math
 import time
 from xml.dom import NotSupportedErr
-from computervision.data.base_data import simple_image_transform
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.optimizers import Adam
 from keras.callbacks import TerminateOnNaN, EarlyStopping, ReduceLROnPlateau, ModelCheckpoint, TensorBoard
 
+from computervision.base.callbacks import LogEpochTime
 from computervision.data.xview_recognition_data import get_image_objects_list_from_file, get_categories, oversample_image_objects
+from computervision.data.base_data import simple_image_transform
 from computervision.ffnn.ffnn_trainer import FFNNModelTrainer
 
 if __name__ == "__main__":
@@ -41,10 +42,15 @@ if __name__ == "__main__":
     objs_valid = [(ann.filename, obj) for ann in anns_valid for obj in ann.objects]
 
     # Get training params
+    number_of_hidden_layers = 1
+    num_of_layers = 1 + number_of_hidden_layers
+    neurons_per_hidden_layer = [100]
+    activation = 'relu'
+    dropout = 0.2
     optimizer_str = 'adam'
     lr=1e-3
     epochs = 40
-    batch_size=64
+    batch_size=32
     train_steps = math.ceil(len(anns_train)/batch_size)
     valid_steps = math.ceil(len(anns_train)/batch_size)
     if optimizer_str == 'adam':
@@ -53,7 +59,6 @@ if __name__ == "__main__":
         raise NotSupportedErr(f"Optimizer {optimizer_str} not supported.")
     
 
-    num_of_layers = 1
     # Model name
     model_name = f"FFNN_DATAAUGM_opt_{optimizer_str}_lr_{str(lr).replace('.', '')}_lyrs_{num_of_layers}_batch_size_{batch_size}_time_{datetime.now().strftime('%Y%m%d%H%M')}"
     current_tb_dir = os.path.join(log_dir, model_name)
@@ -63,8 +68,12 @@ if __name__ == "__main__":
     print('Load model')
     model = Sequential(name=model_name)
     model.add(Flatten(input_shape=(224, 224, 3)))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.2))
+    model.add(Activation(activation))
+    model.add(Dropout(dropout))
+    for i in range(number_of_hidden_layers):
+        model.add(Dense(neurons_per_hidden_layer[i]))
+        model.add(Activation(activation))
+        model.add(Dropout(dropout))
     model.add(Dense(len(categories)))
     model.add(Activation('softmax'))
     model.summary()
@@ -76,7 +85,8 @@ if __name__ == "__main__":
     early_stop = EarlyStopping('val_accuracy', patience=40, verbose=1)
     terminate = TerminateOnNaN()
     tensorboard = TensorBoard(log_dir=current_tb_dir)
-    callbacks = [model_checkpoint, reduce_lr, early_stop, terminate, tensorboard]
+    log_times_on_epoch = LogEpochTime()
+    callbacks = [model_checkpoint, reduce_lr, early_stop, terminate, tensorboard, log_times_on_epoch ]
 
     ffnn_model_trainer = FFNNModelTrainer(model, training_comment)
     #Preprocess

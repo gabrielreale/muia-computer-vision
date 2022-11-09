@@ -2,15 +2,19 @@ import os
 import json
 import gc
 import numpy as np
-from computervision.data.xview_recognition_data import get_categories
-from computervision.data.base_data import GenericImage, GenericObject, load_geoimage, draw_confusion_matrix
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from sklearn.metrics import confusion_matrix
+from tensorflow.keras.models import load_model
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+from computervision.data.xview_recognition_data import get_categories
+from computervision.data.base_data import GenericImage, GenericObject, load_geoimage, draw_confusion_matrix
+
+
 if __name__ == "__main__":
+    print("Running a A100 32G job")
     rand_seed = 11
     dataset_dirpath = 'datasets/xview_recognition'
     log_dir = 'log/tensorboard'
@@ -35,21 +39,15 @@ if __name__ == "__main__":
         image.add_object(obj)
         anns.append(image)
 
-    model_name = 'FFNN_DATAAUGM_opt_adam_lr_0001_lyrs_1_batch_size_64_time_202211022128'
+    model_name = 'FFNN_opt_adam_lr_0001_batch_size_32_time_202211011754'
     model_path = os.path.join(models_dir, model_name+'.hdf5')
     print("Model path: ", model_path)
 
     # Load architecture
     print('Load model')
-    model = Sequential(name=model_name)
-    model.add(Flatten(input_shape=(224, 224, 3)))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.2))
-    model.add(Dense(len(categories)))
-    model.add(Activation('softmax'))
+    model = load_model(model_path)
     model.summary()
     
-    model.load_weights(model_path, by_name=True)
     y_true, y_pred = [], []
     print(f"Total num of images: {len(anns)}")
     i = 0
@@ -60,7 +58,10 @@ if __name__ == "__main__":
         for obj_pred in ann.objects:
             # Generate prediction
             warped_image = np.expand_dims(image, 0)
-            predictions = model.predict(warped_image)
+            # Following https://stackoverflow.com/questions/64199384/tf-keras-model-predict-results-in-memory-leak
+            print("Converting to tensor")
+            tensor = tf.convert_to_tensor(warped_image, dtype=tf.float32)
+            predictions = model.predict(tensor)
             # Save prediction
             pred_category = list(categories.values())[np.argmax(predictions)]
             pred_score = np.max(predictions)
