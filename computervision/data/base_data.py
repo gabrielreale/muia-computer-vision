@@ -1,7 +1,6 @@
 import math
 from typing import Callable, Optional
 import uuid
-import numpy.typing as npt
 import numpy as np
 import warnings
 import rasterio
@@ -94,7 +93,7 @@ def get_mat(rotation, shear, height_zoom, width_zoom, height_shift, width_shift)
     return K.dot(K.dot(rotation_matrix, shear_matrix), K.dot(zoom_matrix, shift_matrix))
 
 
-def simple_image_transform(img: npt.ArrayLike):
+def simple_image_transform(img: np.ndarray):
     """Obtained from https://www.kaggle.com/code/yihdarshieh/tutorial-oversample/notebook"""
 
     # input image - is one image of size [dim,dim,3] not a batch of [b,dim,dim,3]

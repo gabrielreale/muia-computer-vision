@@ -1,0 +1,26 @@
+{
+    "training_comment": "One Hidden layer model provided by the professors of CV.",
+    "oversample": true,
+    "data_augmentation": true,
+    "categories_to_oversample_and_size_multiplier":
+    {
+        "CARGO_PLANE": 2,
+        "HELICOPTER": 10,
+        "FISHING_VESSEL": 2,
+        "EXCAVATOR": 2
+    },
+    "number_of_hidden_layers":2,
+    "neurons_per_hidden_layer": [100, 50],
+    "activation": "relu",
+    "dropout": 0.2,
+    "optimizer_str": "sgd",
+    "learning_rate": 1e-3,
+    "momentum": 0.9,
+    "epochs": 20,
+    "batch_size":64,
+    "loss": "categorical_crossentropy"
+    
+    
+
+
+}

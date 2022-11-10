@@ -1,6 +1,7 @@
 import os
 import json
 import gc
+import sys
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
@@ -14,6 +15,13 @@ from computervision.data.base_data import GenericImage, GenericObject, load_geoi
 
 
 if __name__ == "__main__":
+    input_args = sys.argv
+
+    if len(input_args) <= 1 or input_args[1] is None:
+        raise ValueError(r"Wrong app usage: python file.py 'model_name'")
+    else:
+        model_name = input_args[1]
+
     print("Running a A100 32G job")
     rand_seed = 11
     dataset_dirpath = 'datasets/xview_recognition'
@@ -39,7 +47,6 @@ if __name__ == "__main__":
         image.add_object(obj)
         anns.append(image)
 
-    model_name = 'FFNN_opt_adam_lr_0001_batch_size_32_time_202211011754'
     model_path = os.path.join(models_dir, model_name+'.hdf5')
     print("Model path: ", model_path)
 

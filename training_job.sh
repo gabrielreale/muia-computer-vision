@@ -6,8 +6,8 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --partition=standard-gpu
 #SBATCH --gres=gpu:a100:1
-#SBATCH --mem=16G
+#SBATCH --mem=32G
 ##------------------------ End job description ------------------------
 ##-------------------------- Start execution --------------------------
-srun python computervision/training.py 
+srun python computervision/training.py model_configs/ffnn/fffn_3_layer_64_batch_sgd.json
 ##--------------------------- End execution ---------------------------
