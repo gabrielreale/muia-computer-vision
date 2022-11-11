@@ -9,5 +9,7 @@
 #SBATCH --mem=32G
 ##------------------------ End job description ------------------------
 ##-------------------------- Start execution --------------------------
+## Prepare environment
+. visiontf_environment_setup.sh
 srun python computervision/training.py model_configs/ffnn/fffn_3_layer_64_batch_sgd.json
 ##--------------------------- End execution ---------------------------

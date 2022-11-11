@@ -1,0 +1,8 @@
+Keras==2.4.3
+matplotlib
+numpy
+rasterio
+scikit_learn
+setuptools
+h5py==2.10.0
+tensorflow-gpu==2.4.1

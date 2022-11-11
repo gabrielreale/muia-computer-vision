@@ -9,5 +9,7 @@
 #SBATCH --mem=32G
 ##------------------------ End job description ------------------------
 ##-------------------------- Start execution --------------------------
+## Prepare environment
+. visiontf_environment_setup.sh
 srun python computervision/inference.py FFNN_DATAAUGM_opt_adam_lr_0001_lyrs_3_batch_size_64_time_202211100639
 ##--------------------------- End execution ---------------------------
