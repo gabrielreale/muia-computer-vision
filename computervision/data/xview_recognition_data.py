@@ -84,7 +84,7 @@ def oversample_image_objects(
         category_size_multiplier = categories_to_oversample_and_size_multiplier[category_to_oversample]
         print("category_size_multiplier: ", category_size_multiplier)
         # Obtain the oversampled sequence length
-        output_size = len(imgs_to_oversample) * category_size_multiplier
+        output_size = int(len(imgs_to_oversample) * category_size_multiplier)
         print("output_size: ", output_size)
         # Randomly choose k elemnts of the current list with replcament
         oversampled_imgs = random.choices(imgs_to_oversample, weights=None, cum_weights=None, k=output_size) # with replacement

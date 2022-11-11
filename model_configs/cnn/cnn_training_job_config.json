@@ -1,6 +1,6 @@
 {
-    "model_type": "FFNN", 
-    "training_comment": "Different sampling strategy by limiting the number of max samples to 1000.",
+    "model_type": "ResNet50",
+    "training_comment": "Resnet50. Different sampling strategy by limiting the number of max samples to 1000.",
     "oversample": true,
     "data_augmentation": true,
     "max_number_of_samples_by_category": 1000,
@@ -11,10 +11,6 @@
         "FISHING_VESSEL": 1.25,
         "EXCAVATOR": 1.25
     },
-    "number_of_hidden_layers":1,
-    "neurons_per_hidden_layer": [100],
-    "activation": "relu",
-    "dropout": 0.2,
     "optimizer_str": "adam",
     "learning_rate": 1e-3,
     "epochs": 40,

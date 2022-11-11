@@ -47,7 +47,7 @@ if __name__ == "__main__":
         image.add_object(obj)
         anns.append(image)
 
-    model_path = os.path.join(models_dir, model_name+'.hdf5')
+    model_path = os.path.join(models_dir, model_name, model_name+'.hdf5')
     print("Model path: ", model_path)
 
     # Load architecture
@@ -75,11 +75,11 @@ if __name__ == "__main__":
             y_true.append(obj_pred.category)
             y_pred.append(pred_category)
 
-        print(tf.config.experimental.get_memory_info('GPU:0'))
+        # print(tf.config.experimental.get_memory_info('GPU:0'))
         # Following https://github.com/keras-team/keras/issues/5337
         print("Running GC...")
         gc.collect()
-        print(tf.config.experimental.get_memory_info('GPU:0'))
+        # print(tf.config.experimental.get_memory_info('GPU:0'))
 
         i += 1
 

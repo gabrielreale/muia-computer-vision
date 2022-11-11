@@ -4,7 +4,7 @@ from keras.models import Model
 from typing import Callable, Generator, Optional, Sequence, Tuple
 import numpy as np
 
-from computervision.data.base_data import GenericObject
+from computervision.data.base_data import GenericObject, generator_images
 
 class BaseModelTrainer(ABC):
     def __init__(self, model: Model, training_comment: str) -> None:
@@ -17,11 +17,15 @@ class BaseModelTrainer(ABC):
     def model(self):
         return self._model
 
-    @abstractclassmethod
     def preprocess_training_data(self, 
-        train_objs: Tuple[str, GenericObject], validation_objs: Tuple[str, GenericObject], 
+        train_objs: Tuple[str, GenericObject], validation_objs: Tuple[str, GenericObject], batch_size: Optional[int] = 16,
         transform_train_imgs_func: Optional[Callable] = None, transform_validation_imgs_func: Optional[Callable] = None):
-        pass
+        
+        # Generators
+        train_generator = generator_images(train_objs, batch_size, transform=transform_train_imgs_func, do_shuffle=True)
+        valid_generator = generator_images(validation_objs, batch_size, transform=transform_train_imgs_func, do_shuffle=False)
+
+        return train_generator, valid_generator
 
     def train(self, 
         train_generator,

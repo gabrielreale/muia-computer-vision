@@ -13,7 +13,9 @@ from computervision.base.callbacks import LogEpochTime
 from computervision.data.xview_recognition_data import get_image_objects_list_from_file, get_categories, oversample_image_objects
 from computervision.data.base_data import simple_image_transform
 from computervision.ffnn.ffnn_trainer import FFNNModelTrainer
+from computervision.cnn.resnet50_trainer import ResNet50ModelTrainer
 from computervision.ffnn.ffnn_params_parser import FFNNParamsParser
+from computervision.base.base_params_parser import BaseParamsParser
 
 if __name__ == "__main__":
     input_args = sys.argv
@@ -24,15 +26,26 @@ if __name__ == "__main__":
         params_json_file = input_args[1]
 
     print("Parsing parameter file from ", params_json_file)
-    params_parser = FFNNParamsParser(params_json_file)
+    params_parser = BaseParamsParser(params_json_file)
+    model_type = params_parser.get_model_type()
+    training_comment = params_parser.get_training_comment()
+    categories = get_categories()
     
+    if model_type == 'FFNN':
+        params_parser = FFNNParamsParser(params_json_file)
+        model_trainer = FFNNModelTrainer(params_parser, len(categories), training_comment)
+    elif model_type == 'ResNet50':
+        model_trainer = ResNet50ModelTrainer(params_parser, len(categories), training_comment)
+    else:
+        raise NotSupportedErr(f"Model type {model_type} not supported.")
+
     rand_seed = 11
     dataset_dirpath = 'datasets/xview_recognition'
     log_dir = 'log/tensorboard'
     models_dir = 'models/xview_recognition'
-    training_comment = params_parser.get_training_comment()
     oversample_flag = params_parser.get_oversample_data_flag()
     data_augmentation_flag = params_parser.get_data_augmentation_flag()
+    max_number_of_samples_by_category = params_parser.get_max_number_of_samples_by_category()
     train_transform = None
     if data_augmentation_flag:
         train_transform = simple_image_transform 
@@ -40,7 +53,7 @@ if __name__ == "__main__":
     # Get training data
     categories = get_categories()
     train_database_json_file = os.path.join(dataset_dirpath, 'xview_ann_train.json')
-    anns, _ = get_image_objects_list_from_file(train_database_json_file, dataset_dirpath, maximum_training_samples_per_category=5000)
+    anns, _ = get_image_objects_list_from_file(train_database_json_file, dataset_dirpath, maximum_training_samples_per_category=max_number_of_samples_by_category)
     anns_train, anns_valid = train_test_split(anns, test_size=0.1, random_state=1, shuffle=True)
     
     if oversample_flag:
@@ -70,11 +83,8 @@ if __name__ == "__main__":
     else:
         raise NotSupportedErr(f"Optimizer {optimizer_str} not supported.")
 
-    # Get model trainer
-    ffnn_model_trainer = FFNNModelTrainer(params_parser, len(categories), training_comment)
-
     # Model name
-    model_name = ffnn_model_trainer.model_name
+    model_name = model_trainer.model_name
     current_tb_dir = os.path.join(log_dir, model_name)
     os.makedirs(current_tb_dir, exist_ok=True)
 
@@ -93,12 +103,12 @@ if __name__ == "__main__":
     callbacks = [model_checkpoint, reduce_lr, early_stop, terminate, tensorboard, log_times_on_epoch ]
 
     #Preprocess
-    train_generator, valid_generator = ffnn_model_trainer.preprocess_training_data(
+    train_generator, valid_generator = model_trainer.preprocess_training_data(
         objs_train, objs_valid, batch_size=batch_size,
         transform_train_imgs_func=train_transform, transform_validation_imgs_func=None)
     #Train
     start_time = time.time()
-    ffnn_model_trainer.train(
+    model_trainer.train(
         train_generator, valid_generator, 
         optimizer=opt, loss=loss, metrics=['accuracy'],
         train_steps=train_steps, validation_steps=valid_steps, epochs=epochs, callbacks=callbacks)

@@ -39,13 +39,3 @@ class FFNNModelTrainer(BaseModelTrainer):
         model.summary()
     
         super().__init__(model, training_comment)
-
-    def preprocess_training_data(self, 
-        train_objs: Tuple[str, GenericObject], validation_objs: Tuple[str, GenericObject], batch_size: Optional[int] = 16,
-        transform_train_imgs_func: Optional[Callable] = None, transform_validation_imgs_func: Optional[Callable] = None):
-        
-        # Generators
-        train_generator = generator_images(train_objs, batch_size, transform=transform_train_imgs_func, do_shuffle=True)
-        valid_generator = generator_images(validation_objs, batch_size, transform=transform_train_imgs_func, do_shuffle=False)
-
-        return train_generator, valid_generator

@@ -8,6 +8,9 @@ class BaseParamsParser():
             self.params = json.load(ifs)
         ifs.close()
 
+    def get_model_type(self) -> str:
+        return self.params["model_type"]
+
     def get_training_comment(self) -> str:
         return self.params["training_comment"]
 
@@ -19,6 +22,9 @@ class BaseParamsParser():
     
     def get_categories_to_oversample_and_size_multiplier(self) -> Mapping[str, float]:
         return self.params["categories_to_oversample_and_size_multiplier"]
+
+    def get_max_number_of_samples_by_category(self) -> int:
+        return self.params["max_number_of_samples_by_category"]
 
     def get_activation_name(self) -> str:
         return self.params["activation"]
