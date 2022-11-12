@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --partition=standard-gpu
 #SBATCH --gres=gpu:a100:1
-#SBATCH --mem=4G
+#SBATCH --mem=8G
 ##------------------------ End job description ------------------------
 ##-------------------------- Start execution --------------------------
 ## Prepare environment
