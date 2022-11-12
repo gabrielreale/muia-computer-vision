@@ -1,6 +1,6 @@
 #!/bin/bash
 ##----------------------- Start job description -----------------------
-#SBATCH --job-name=example
+#SBATCH --job-name=training
 #SBATCH --time=24:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1

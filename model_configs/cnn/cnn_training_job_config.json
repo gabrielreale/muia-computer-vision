@@ -11,9 +11,10 @@
         "FISHING_VESSEL": 1.25,
         "EXCAVATOR": 1.25
     },
-    "optimizer_str": "adam",
+    "optimizer_str": "sgd",
     "learning_rate": 1e-3,
-    "epochs": 40,
+    "momentum": 0.9,
+    "epochs": 20,
     "batch_size":64,
     "loss": "categorical_crossentropy"
 }

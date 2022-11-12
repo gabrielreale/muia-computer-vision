@@ -1,0 +1,19 @@
+{
+    "model_type": "VGG19",
+    "training_comment": "VGG19. Different sampling strategy by limiting the number of max samples to 1000.",
+    "oversample": true,
+    "data_augmentation": true,
+    "max_number_of_samples_by_category": 1000,
+    "categories_to_oversample_and_size_multiplier":
+    {
+        "CARGO_PLANE": 1.3,
+        "HELICOPTER": 10,
+        "FISHING_VESSEL": 1.25,
+        "EXCAVATOR": 1.25
+    },
+    "optimizer_str": "adam",
+    "learning_rate": 1e-3,
+    "epochs": 40,
+    "batch_size":64,
+    "loss": "categorical_crossentropy"
+}
