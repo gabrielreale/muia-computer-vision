@@ -151,4 +151,3 @@ def draw_confusion_matrix(cm, categories, normalize=False):
             ax.text(j, i, format(cm[i, j], fmt), ha="center", va="center", color="white" if cm[i, j] > thresh else "black", fontsize=int(20-pow(len(categories), 0.5)))
     fig.tight_layout()
     plt.show()
-

@@ -1,0 +1,10 @@
+training samples 27572, with 5000 max samples per category has the following statistics.
+--------------------
+Red Channel Mean:    0.48033383
+Red Channel Std:     0.0
+--------------------
+Green Channel Mean:  0.48036885
+Green Channel Std:   0.0
+--------------------
+Blue Channel Mean:   0.4804214
+Blue Channel Std:    0.0

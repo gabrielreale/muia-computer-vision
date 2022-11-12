@@ -14,6 +14,8 @@ from computervision.data.xview_recognition_data import get_image_objects_list_fr
 from computervision.data.base_data import simple_image_transform
 from computervision.ffnn.ffnn_trainer import FFNNModelTrainer
 from computervision.cnn.resnet50_trainer import ResNet50ModelTrainer
+from computervision.cnn.vgg19_trainer import VGG19ModelTrainer
+from computervision.cnn.inceptionresnet_trainer import InceptionResNetV2ModelTrainer
 from computervision.ffnn.ffnn_params_parser import FFNNParamsParser
 from computervision.base.base_params_parser import BaseParamsParser
 
@@ -36,9 +38,14 @@ if __name__ == "__main__":
         model_trainer = FFNNModelTrainer(params_parser, len(categories), training_comment)
     elif model_type == 'ResNet50':
         model_trainer = ResNet50ModelTrainer(params_parser, len(categories), training_comment)
+    elif model_type == 'VGG19':
+        model_trainer = VGG19ModelTrainer(params_parser, len(categories), training_comment)
+    elif model_type == 'InceptionResNetV2':
+        model_trainer = InceptionResNetV2ModelTrainer(params_parser, len(categories), training_comment)
     else:
         raise NotSupportedErr(f"Model type {model_type} not supported.")
 
+    print("Model name: ", model_trainer.model_name)
     rand_seed = 11
     dataset_dirpath = 'datasets/xview_recognition'
     log_dir = 'log/tensorboard'

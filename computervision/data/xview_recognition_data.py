@@ -113,52 +113,110 @@ def load_json_database(json_file: str) -> Any:
     return json_data
 
 
-if __name__ == "__main__":
-    # Get training data
-    dataset_dirpath = 'datasets/xview_recognition'
-    output_dir = 'image_transforms/simple_image_transform'
+def obtain_dataset_statistics(dataset_dirpath: str):
     categories = get_categories()
 
     train_database_json_file = os.path.join(dataset_dirpath, 'xview_ann_train.json')
     print("Obtainig annotations")
     anns, _ = get_image_objects_list_from_file(train_database_json_file, dataset_dirpath, maximum_training_samples_per_category=5000)
-    
-    print("Obtainig grouped annotations")
-    img_objs_per_category = get_samples_grouped_by_categories(anns)
+    objs = [(ann.filename, obj) for ann in anns for obj in ann.objects]
 
-    for selected_cat in categories.values():
-        print("Obtaining plots for ", selected_cat)
-        selected_cat_img_objs = img_objs_per_category[selected_cat]
-        
-        objs = [(ann.filename, obj) for ann in selected_cat_img_objs for obj in ann.objects]
-        # objs_generator = generator_images(objs, batch_size=1, transform=simple_image_transform, do_shuffle=True)
+    meanRedChannels = []
+    meanGrnChannels = []
+    meanBluChannels = []
+    stdRedChannels = []
+    stdGrnChannels = []
+    stdBluChannels = []
 
-        i = 0 
+    for i in range(len(objs)):
+        print(f"Sample {i} of {len(objs)}")
         filename, img_obj = objs[i]
         image = load_geoimage(filename)
-    
-        print("Plotting image transforms")
-        plt.figure(figsize=(19,14))
-        rows = 4
-        cols = 5
-        count = 1
-        for r in range(rows):
-            for c in range(cols):
-                plt.subplot(rows, cols, count)
-
-                if r == 0 and c == 0:
-                    plt.imshow(image)
-                    plt.title("Reference Image")
-                else:
-                    transformed_img = simple_image_transform(image)
-                    plt.imshow(transformed_img)
-                    plt.title("Randomly Transformed Image")
-                
-                count += 1
         
-        plt.show()
+        normImg = image.astype(np.float32) / 255.0
+        redChannelsStd = np.std(normImg[0,:,:])
+        GrnChannelsStd = np.std(normImg[1,:,:])
+        BluChannelsStd = np.std(normImg[2,:,:])
 
-        os.makedirs(output_dir, exist_ok=True)
-        fig_path = os.path.join(output_dir, f'random_image_transform_{selected_cat}.jpg')
-        print("Saving plot to ", fig_path)
-        plt.savefig(fig_path)
+        redChannelsMean = np.mean(normImg[0,:,:])
+        GrnChannelsMean = np.mean(normImg[1,:,:])
+        BluChannelsMean = np.mean(normImg[2,:,:])
+
+        stdRedChannels.append(redChannelsStd)
+        stdGrnChannels.append(GrnChannelsStd)
+        stdBluChannels.append(BluChannelsStd)
+
+        meanRedChannels.append(redChannelsMean)
+        meanGrnChannels.append(GrnChannelsMean)
+        meanBluChannels.append(BluChannelsMean)
+
+    meanRed = np.mean(np.array(redChannelsMean))
+    meanGrn = np.mean(np.array(GrnChannelsMean))
+    meanBlu = np.mean(np.array(BluChannelsMean))
+
+    stdRed = np.std(np.array(redChannelsStd))
+    stdGrn = np.std(np.array(GrnChannelsStd))
+    stdBlu = np.std(np.array(BluChannelsStd))
+
+    print("-"*20)
+    print("Red Channel Mean:   ", meanRed)
+    print("Red Channel Std:    ", stdRed)
+    print("-"*20)
+    print("Green Channel Mean: ", meanGrn)
+    print("Green Channel Std:  ", stdGrn)
+    print("-"*20)
+    print("Blue Channel Mean:  ", meanBlu)
+    print("Blue Channel Std:   ", stdBlu)
+
+
+
+if __name__ == "__main__":
+    # Get training data
+    dataset_dirpath = 'datasets/xview_recognition'
+    obtain_dataset_statistics(dataset_dirpath)
+    # output_dir = 'image_transforms/simple_image_transform'
+    # categories = get_categories()
+
+    # train_database_json_file = os.path.join(dataset_dirpath, 'xview_ann_train.json')
+    # print("Obtainig annotations")
+    # anns, _ = get_image_objects_list_from_file(train_database_json_file, dataset_dirpath, maximum_training_samples_per_category=5000)
+    
+    # print("Obtainig grouped annotations")
+    # img_objs_per_category = get_samples_grouped_by_categories(anns)
+
+    # for selected_cat in categories.values():
+    #     print("Obtaining plots for ", selected_cat)
+    #     selected_cat_img_objs = img_objs_per_category[selected_cat]
+        
+    #     objs = [(ann.filename, obj) for ann in selected_cat_img_objs for obj in ann.objects]
+    #     # objs_generator = generator_images(objs, batch_size=1, transform=simple_image_transform, do_shuffle=True)
+
+    #     i = 0 
+    #     filename, img_obj = objs[i]
+    #     image = load_geoimage(filename)
+    
+    #     print("Plotting image transforms")
+    #     plt.figure(figsize=(19,14))
+    #     rows = 4
+    #     cols = 5
+    #     count = 1
+    #     for r in range(rows):
+    #         for c in range(cols):
+    #             plt.subplot(rows, cols, count)
+
+    #             if r == 0 and c == 0:
+    #                 plt.imshow(image)
+    #                 plt.title("Reference Image")
+    #             else:
+    #                 transformed_img = simple_image_transform(image)
+    #                 plt.imshow(transformed_img)
+    #                 plt.title("Randomly Transformed Image")
+                
+    #             count += 1
+        
+    #     plt.show()
+
+    #     os.makedirs(output_dir, exist_ok=True)
+    #     fig_path = os.path.join(output_dir, f'random_image_transform_{selected_cat}.jpg')
+    #     print("Saving plot to ", fig_path)
+    #     plt.savefig(fig_path)

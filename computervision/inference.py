@@ -68,7 +68,7 @@ if __name__ == "__main__":
             # Following https://stackoverflow.com/questions/64199384/tf-keras-model-predict-results-in-memory-leak
             print("Converting to tensor")
             tensor = tf.convert_to_tensor(warped_image, dtype=tf.float32)
-            predictions = model.predict(tensor)
+            predictions = model(tensor, training=False).numpy()
             # Save prediction
             pred_category = list(categories.values())[np.argmax(predictions)]
             pred_score = np.max(predictions)
