@@ -1,5 +1,5 @@
 from typing import Sequence
-from computervision.base.base_params_parser import BaseParamsParser
+from computervision.classification.base.base_params_parser import BaseParamsParser
 
 class FFNNParamsParser(BaseParamsParser):
     def __init__(self, params_json_file: str) -> None:

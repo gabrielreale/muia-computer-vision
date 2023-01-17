@@ -10,8 +10,8 @@ from tensorflow.keras.models import load_model
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from computervision.data.xview_recognition_data import get_categories
-from computervision.data.base_data import GenericImage, GenericObject, load_geoimage, draw_confusion_matrix
+from computervision.classification.data.xview_recognition_data import get_categories
+from computervision.classification.data.base_data import GenericImage, GenericObject, load_geoimage, draw_confusion_matrix
 
 
 if __name__ == "__main__":

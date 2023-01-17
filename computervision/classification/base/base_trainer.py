@@ -4,7 +4,7 @@ from keras.models import Model
 from typing import Callable, Generator, Optional, Sequence, Tuple
 import numpy as np
 
-from computervision.data.base_data import GenericObject, generator_images
+from computervision.classification.data.base_data import GenericObject, generator_images
 
 class BaseModelTrainer(ABC):
     def __init__(self, model: Model, training_comment: str) -> None:

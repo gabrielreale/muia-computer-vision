@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Any, Mapping, Optional, Sequence, Tuple
 
-from computervision.data.base_data import GenericObject, GenericImage, load_geoimage, simple_image_transform
+from computervision.classification.data.base_data import GenericObject, GenericImage, load_geoimage, simple_image_transform
 
 def get_categories():
     return {

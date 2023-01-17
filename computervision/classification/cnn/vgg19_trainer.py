@@ -1,8 +1,8 @@
 from datetime import datetime
 import tensorflow as tf
 
-from computervision.base.base_trainer import BaseModelTrainer
-from computervision.ffnn.ffnn_params_parser import FFNNParamsParser
+from computervision.classification.base.base_trainer import BaseModelTrainer
+from computervision.classification.ffnn.ffnn_params_parser import FFNNParamsParser
 
 class VGG19ModelTrainer(BaseModelTrainer):
     def __init__(self, ffnn_params_parser: FFNNParamsParser, num_categories: str, training_comment: str) -> None:

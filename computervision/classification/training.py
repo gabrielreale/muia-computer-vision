@@ -9,15 +9,15 @@ from sklearn.model_selection import train_test_split
 from keras.optimizers import Adam, SGD
 from keras.callbacks import TerminateOnNaN, EarlyStopping, ReduceLROnPlateau, ModelCheckpoint, TensorBoard, CSVLogger
 
-from computervision.base.callbacks import LogEpochTime
-from computervision.data.xview_recognition_data import get_image_objects_list_from_file, get_categories, oversample_image_objects
-from computervision.data.base_data import simple_image_transform
-from computervision.ffnn.ffnn_trainer import FFNNModelTrainer
-from computervision.cnn.resnet50_trainer import ResNet50ModelTrainer
-from computervision.cnn.vgg19_trainer import VGG19ModelTrainer
-from computervision.cnn.inceptionresnet_trainer import InceptionResNetV2ModelTrainer
-from computervision.ffnn.ffnn_params_parser import FFNNParamsParser
-from computervision.base.base_params_parser import BaseParamsParser
+from computervision.classification.base.callbacks import LogEpochTime
+from computervision.classification.data.xview_recognition_data import get_image_objects_list_from_file, get_categories, oversample_image_objects
+from computervision.classification.data.base_data import simple_image_transform
+from computervision.classification.ffnn.ffnn_trainer import FFNNModelTrainer
+from computervision.classification.cnn.resnet50_trainer import ResNet50ModelTrainer
+from computervision.classification.cnn.vgg19_trainer import VGG19ModelTrainer
+from computervision.classification.cnn.inceptionresnet_trainer import InceptionResNetV2ModelTrainer
+from computervision.classification.ffnn.ffnn_params_parser import FFNNParamsParser
+from computervision.classification.base.base_params_parser import BaseParamsParser
 
 if __name__ == "__main__":
     input_args = sys.argv

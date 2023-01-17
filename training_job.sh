@@ -11,5 +11,5 @@
 ##-------------------------- Start execution --------------------------
 ## Prepare environment
 . visiontf_environment_setup.sh
-srun python computervision/training.py model_configs/cnn/cnn_training_job_config.json
+srun python computervision/classification/training.py model_configs/cnn/resnet_50_adam_train_params.json
 ##--------------------------- End execution ---------------------------

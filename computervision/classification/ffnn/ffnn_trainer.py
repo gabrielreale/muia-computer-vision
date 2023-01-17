@@ -4,9 +4,9 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from typing import Callable, Generator, Optional, Sequence, Tuple
 import numpy as np
 
-from computervision.base.base_trainer import BaseModelTrainer
-from computervision.data.base_data import GenericObject, generator_images
-from computervision.ffnn.ffnn_params_parser import FFNNParamsParser
+from computervision.classification.base.base_trainer import BaseModelTrainer
+from computervision.classification.data.base_data import GenericObject, generator_images
+from computervision.classification.ffnn.ffnn_params_parser import FFNNParamsParser
 
 class FFNNModelTrainer(BaseModelTrainer):
     def __init__(self, ffnn_params_parser: FFNNParamsParser, num_categories: str, training_comment: str) -> None:
