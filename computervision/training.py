@@ -7,7 +7,7 @@ import tensorflow as tf
 from xml.dom import NotSupportedErr
 from sklearn.model_selection import train_test_split
 from keras.optimizers import Adam, SGD
-from keras.callbacks import TerminateOnNaN, EarlyStopping, ReduceLROnPlateau, ModelCheckpoint, TensorBoard
+from keras.callbacks import TerminateOnNaN, EarlyStopping, ReduceLROnPlateau, ModelCheckpoint, TensorBoard, CSVLogger
 
 from computervision.base.callbacks import LogEpochTime
 from computervision.data.xview_recognition_data import get_image_objects_list_from_file, get_categories, oversample_image_objects
@@ -100,14 +100,16 @@ if __name__ == "__main__":
     os.makedirs(model_dir, exist_ok=True)
     model_path = os.path.join(model_dir, model_name+'.hdf5')
     shutil.copyfile(params_json_file, os.path.join(model_dir, "train_params.json")) # Copy json file to model path to save config
+    csv_log_filepath = os.path.join(model_dir, "model_log.csv")
     
     model_checkpoint = ModelCheckpoint(model_path, monitor='val_accuracy', verbose=1, save_best_only=True)
     reduce_lr = ReduceLROnPlateau('val_accuracy', factor=0.1, patience=10, verbose=1)
     early_stop = EarlyStopping('val_accuracy', patience=40, verbose=1)
     terminate = TerminateOnNaN()
     tensorboard = TensorBoard(log_dir=current_tb_dir)
+    csv_logger = CSVLogger(csv_log_filepath)
     log_times_on_epoch = LogEpochTime()
-    callbacks = [model_checkpoint, reduce_lr, early_stop, terminate, tensorboard, log_times_on_epoch ]
+    callbacks = [model_checkpoint, reduce_lr, early_stop, terminate, tensorboard, log_times_on_epoch, csv_logger ]
 
     #Preprocess
     train_generator, valid_generator = model_trainer.preprocess_training_data(
