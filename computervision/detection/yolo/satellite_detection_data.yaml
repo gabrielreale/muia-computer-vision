@@ -1,0 +1,11 @@
+path:  C:/Gabriel/Edu/MUIA/ComputerVision/datasets/xview_detection_yolo
+train: train # Relative to path
+val: valid # Relative to path
+test: test # (optional) Relative to path
+
+#Classes
+nc: 12 # replace according to your number of classes
+
+#classes names
+#replace all class names list with your classes names
+names: ['CARGO_PLANE', 'HELICOPTER', 'SMALL_CAR', 'BUS', 'TRUCK', 'MOTORBOAT', 'FISHING_VESSEL', 'DUMP_TRUCK', 'EXCAVATOR', 'BUILDING', 'STORAGE_TANK', 'SHIPPING_CONTAINER']

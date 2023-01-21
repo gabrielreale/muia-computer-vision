@@ -1,0 +1,13 @@
+# Model Training Parameters
+
+name: satelite_detection,
+
+# Paths relative to current file
+project: runs
+save_directory: "C:/Gabriel/Edu/MUIA/ComputerVision/muia-computer-visioncomputervision",
+
+epochs: 10
+imgsz: 640
+batch: 1
+optimizer: "SGD",
+plots: True
