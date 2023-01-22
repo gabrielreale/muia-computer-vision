@@ -1,5 +1,6 @@
 from datetime import datetime
 import tensorflow as tf
+import tensorflow.keras as K
 
 from computervision.classification.base.base_trainer import BaseModelTrainer
 from computervision.classification.ffnn.ffnn_params_parser import FFNNParamsParser
@@ -17,7 +18,17 @@ class ResNet50ModelTrainer(BaseModelTrainer):
         self.model_name = f"ResNet50_{data_augmentation_str}opt_{optimizer_str}_lr_{str(lr).replace('.', '')}_batch_size_{batch_size}_time_{datetime.now().strftime('%Y%m%d%H%M')}"
     
         print('Load model')
-        model = tf.keras.applications.resnet50.ResNet50(weights=None, input_shape=(224, 224, 3), classes=num_categories)
+        res_model = tf.keras.applications.resnet50.ResNet50(include_top=False, weights='imagenet', input_shape=(224, 224, 3))
+        
+        # Freeze all but last 5 layers
+        for layer in res_model.layers[:-5]:
+            layer.trainable = False
+
+        # Create final model
+        model = K.models.Sequential()
+        model.add(res_model)
+        model.add(K.layers.Flatten())
+        model.add(K.layers.Dense(num_categories, activation='softmax'))
         model.summary()
     
         super().__init__(model, training_comment)

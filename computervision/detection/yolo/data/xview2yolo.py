@@ -145,9 +145,6 @@ def xview_data_dir_to_yolo_data_dir(xview_main_imgs_dir: str, output_yolo_main_d
             # Move the scan image contents to YOLO output format
             move_xview_image_to_yolo_dir(image_id, xview_stage_images_dir, yolo_images_dir_path)
 
-            if image_id == "38":
-                print(f"{ann.width}, {ann.height}")
-
             # Iterate over each object
             for obj in ann.objects:
                 # Transform label in corresponding YOLO format
